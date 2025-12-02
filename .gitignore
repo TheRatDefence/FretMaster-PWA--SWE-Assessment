@@ -1,4 +1,40 @@
-/MARKING_CRITERIA.md
-/Plan
-/CLAUDE.md
-/Database/schema.sql
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# Database
+database/fretmaster.db
+*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+
+# Generated diagrams (optional - keep if you want to track them)
+# static/diagrams/*.svg
+
+# Logs
+*.log
+
+
+/database/view_db.py
+/docs/Plan.md
+/docs/CLAUDE.md
+/docs/MARKING_CRITERIA.md
