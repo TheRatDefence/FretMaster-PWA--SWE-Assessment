@@ -3,7 +3,7 @@ import sqlite3
 from flask import session
 
 from config import DATABASE_PATH
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def authenticate_user(username, password) -> sqlite3.Row | None:
 
     # Query the database for the user.
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM users WHERE username = ?', (username,)) # I had security concerns about using SELECT * FROM... but it appears to be fine
+    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
     user = cursor.fetchone()
 
     #Check if the user exists
@@ -48,3 +48,23 @@ def authenticate_user(username, password) -> sqlite3.Row | None:
     else:
         logger.debug(f"Invalid password for user '{username}'")
         return None
+
+def create_user(username, password, email) -> bool:
+    db = get_db()
+    cursor = db.cursor()
+
+    # Check if the Username or Email already exists in the database
+    if cursor.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone() is not None:
+        logger.debug(f"User '{username}' already exists in the database")
+        return False
+
+    if cursor.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone() is not None:
+        logger.debug(f"Email '{email}' already exists in the database")
+        return False
+
+    password_hash = generate_password_hash(password)
+
+    # Insert the new user details
+    cursor.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', (username, email, password_hash,))
+    db.commit()
+    return True

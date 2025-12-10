@@ -2,15 +2,23 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from config import DATABASE_PATH, SECRET_KEY
 import logging
 
-from database.db_operations import authenticate_user
+from database.db_operations import authenticate_user, create_user
 
-logger = logging.getLogger(__name__)
 
 # Flask app initialisation
 app = Flask(__name__)
 
 # Secret Key set using Config file
 app.config['SECRET_KEY'] = SECRET_KEY
+
+#-------------------Logging-------------------#
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 
 #-------------------Routes-------------------#
@@ -61,7 +69,37 @@ def login():
 # Register page
 @app.route('/register', methods=["GET", "POST"])
 def register():
-    pass
+    """
+    The registration process:
+      1. User fills out form (username, email, password)
+      2. Flask receives POST request
+      3. Hash the password (never store plain text!)
+      4. Insert new user into database
+      5. Redirect to login page
+      6. Show success message
+    """
+    if request.method == "POST":
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        ip = request.remote_addr
+
+        logger.info(f"Register attempt for user '{username}' from IP '{ip}'")
+
+        registered = create_user(username, password, email)
+
+        if registered:
+            logger.info(f"Successful registration: user='{username}' ip='{ip}')")
+            flash('Successful registration', 'success')
+            return redirect(url_for('login'))
+        else:
+            logger.warning(f"Failed Registration: user='{username}' ip='{ip}'")
+            flash('Could not register user', 'error')
+            return render_template('auth/register.html')
+
+    else:
+        return render_template('auth/register.html')
+
 
 # Logout
 @app.route('/logout')

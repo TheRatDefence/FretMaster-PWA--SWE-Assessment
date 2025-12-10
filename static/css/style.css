@@ -1,0 +1,111 @@
+@import url('material-theme/dark.css');
+
+/* ======================
+   PHASE 2.5: MINIMAL CSS
+   Quick styling to make app functional
+   I'll polish in Phase 4.5
+   ====================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+}
+
+nav {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+nav a {
+    color: inherit;
+    text-decoration: none;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+form {
+    background: var(--md-sys-color-surface-container);
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+input {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface-variant);
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 4px;
+}
+
+button {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.success {
+    background: var(--md-sys-color-tertiary);
+    color: var(--md-sys-color-on-tertiary);
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.error {
+    background: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 4rem;
+    opacity: 0.7;
+}
