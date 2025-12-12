@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main">
+    <div class="entry">
+        <h2>
+            {{ exercise.title }}
+        </h2>
+        <p>{{ exercise.description }}</p>
+        <p><strong>Note Range:</strong> {{ exercise.note_range }}</p>
+        <p><strong>Musical Concept:</strong> {{ exercise.musical_concept }}</p>
+
+        <!-- Avg difficulty-->
+        {% if exercise.avg_difficulty %}
+            <p><strong>Average Difficulty:</strong> {{ exercise.avg_difficulty }} / 5</p>
+        {% else %}
+            <p><em>No difficulty ratings yet</em></p>
+        {% endif %}
+
+        <p class="date">Created: {{ exercise.created_at }}</p>
+    </div>
+
+    <a href="{{ url_for('browse_exercises') }}">Back to all exercises</a>
+
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main">
+    <h2>Browse Exercises</h2>
+        {% for exercise in exercises %}
+            <div class="entry">
+                <h3>
+                    <a href="{{ url_for('exercise_detail', exercise_id=exercise.id) }}">{{ exercise.title }}</a>
+                </h3>
+                <p>{{ exercise.description }}</p>
+                <p>Note Range: {{ exercise.note_range }}</p>
+                <p>Concept: {{ exercise.musical_concept }}</p>
+                <p class="date">{{ exercise.created_at }}</p>
+            </div>
+        {% endfor %}
+</div>
+{% endblock %}

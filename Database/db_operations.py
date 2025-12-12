@@ -68,3 +68,45 @@ def create_user(username, password, email) -> bool:
     cursor.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', (username, email, password_hash,))
     db.commit()
     return True
+
+
+#-------------------Exercise Functions-------------------#
+
+def get_all_exercises() -> list:
+    """
+    Get all exercises from the database
+    :return: List of all exercise rows
+    """
+    db = get_db()
+    return db.execute('SELECT * FROM exercises '
+                      'ORDER BY created_at DESC').fetchall()
+
+def get_exercise_by_id(exercise_id: str) -> sqlite3.Row | None:
+    """
+    Get a single exercise by its ID
+    :param exercise_id: The ID of the exercise to fetch
+    :return: Exercise row or None if not found
+    """
+    db = get_db()
+    return db.execute('SELECT * FROM exercises '
+                      'WHERE id = ?', (exercise_id,)).fetchone()
+
+
+def get_exercise_with_avg_difficulty(exercise_id) -> sqlite3.Row | None:
+    """
+    Get a single exercise with its average difficulty rating
+
+    :param exercise_id: The ID of the exercise to fetch
+    :return: Exercise row with avg_difficulty, or None if not found
+    """
+    db = get_db()
+
+    exercise = db.execute(
+        'SELECT exercises.*, AVG(practice_sessions.difficulty_rating) AS avg_difficulty '
+        'FROM exercises '
+        'LEFT JOIN practice_sessions ON exercises.id = practice_sessions.exercise_id '
+        'WHERE exercises.id = ? '
+        'GROUP BY exercises.id', (exercise_id,)
+    ).fetchone()
+
+    return exercise

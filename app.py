@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from config import DATABASE_PATH, SECRET_KEY
 import logging
 
-from database.db_operations import authenticate_user, create_user
+from database.db_operations import authenticate_user, create_user, get_all_exercises, get_exercise_with_avg_difficulty
 
 
 # Flask app initialisation
@@ -10,6 +10,12 @@ app = Flask(__name__)
 
 # Secret Key set using Config file
 app.config['SECRET_KEY'] = SECRET_KEY
+
+#-------------------Flash Message Categories-------------------#
+# Flash message categories (matches CSS class names in static/css/style.css)
+# Available categories:
+#   - 'success' -> Green background
+#   - 'error'   -> Red background
 
 #-------------------Logging-------------------#
 
@@ -21,16 +27,15 @@ logging.basicConfig(
 )
 
 
-#-------------------Routes-------------------#
+#-------------------Regular Routes-------------------#
 
-# Home page
+# Home page - PUBLIC
 @app.route('/')
 def home():
     # TODO(): Proper home page implementation
     return render_template('index.html')
 
-
-# Login page
+# Login page - PUBLIC
 @app.route('/login', methods=["GET", "POST"])
 def login():
     """
@@ -64,9 +69,7 @@ def login():
     else:
         return render_template('auth/login.html')
 
-
-
-# Register page
+# Register page - PUBLIC
 @app.route('/register', methods=["GET", "POST"])
 def register():
     """
@@ -100,8 +103,7 @@ def register():
     else:
         return render_template('auth/register.html')
 
-
-# Logout
+# Logout - PUBLIC
 @app.route('/logout')
 def logout():
     """
@@ -119,7 +121,37 @@ def logout():
     # Redirect to homepage
     return redirect(url_for('home'))
 
+#-------------------Functionality Routes-------------------#
 
+# Exercises page - PUBLIC
+@app.route('/exercises')
+def browse_exercises():
+    """
+    Displays a browser of exercises in the database
+
+    :return: Rendered browse exercises template with all exercises
+    """
+    exercises = get_all_exercises()
+    return render_template('exercises/browse.html', exercises=exercises)
+
+# Specific exercise page - PUBLIC
+@app.route('/exercises/<int:exercise_id>')
+def exercise_detail(exercise_id: int):
+    """
+    View a single exercise in detail page
+    Shows exercise info + average difficulty rating
+
+    :param exercise_id: The ID of the exercise to display
+    :return: Rendered exercise detail template or redirect if not found
+    """
+    exercise = get_exercise_with_avg_difficulty(exercise_id)
+
+    # Check if exercise exists
+    if exercise is None:
+        flash('Exercise not found', 'error')
+        return redirect(url_for('browse_exercises'))
+
+    return render_template('exercises/detail.html', exercise=exercise)
 
 if __name__ == '__main__':
     app.run(port=5001)
