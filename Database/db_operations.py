@@ -110,3 +110,64 @@ def get_exercise_with_avg_difficulty(exercise_id) -> sqlite3.Row | None:
     ).fetchone()
 
     return exercise
+
+
+def create_exercise(title, description, note_range, musical_concept, svg_diagram_path, created_by) -> bool:
+    db = get_db()
+    cursor = db.cursor()
+
+    # Pre-validation Check: No other exercises with the same title exists
+    if cursor.execute('SELECT * FROM exercises WHERE title = ?', (title,)).fetchone() is not None:
+        logger.debug(f"Exercise with title: '{title}' already exists")
+        return False
+
+    # Insert the new exercise
+    cursor.execute('INSERT INTO exercises (title, description, note_range, musical_concept, svg_diagram_path, created_by) ' # Missing the svg_diagram_path 
+               'VALUES (?, ?, ?, ?, ?, ?)',
+               (title, description, note_range, musical_concept, svg_diagram_path, created_by,))
+
+    db.commit()
+    return True
+
+
+def update_exercise(exercise_id, title, description, note_range, musical_concept, svg_diagram_path = None) -> bool:
+    db = get_db()
+    cursor = db.cursor()
+
+    # Pre-validation Check: Exercise exists
+    if get_exercise_by_id(exercise_id) is None:
+        logger.debug(f"Exercise with id: '{exercise_id}' does not exist")
+        return False
+    # Pre-validation Check 2: No other exercise with this ID has the same Title
+    if cursor.execute('SELECT * FROM exercises WHERE title = ? AND id != ?', (title, exercise_id,)).fetchone() is not None:
+        logger.debug(f"Exercise with title: '{title}' already exists")
+        return False
+
+    # Update the exercise
+    if svg_diagram_path:
+        cursor.execute('UPDATE exercises '
+                       'SET title = ?, description = ?, note_range = ?, musical_concept = ?, svg_diagram_path = ? '
+                       'WHERE id = ?',
+                       (title, description, note_range, musical_concept, svg_diagram_path, exercise_id))
+    else:
+        cursor.execute('UPDATE exercises '
+                       'SET title = ?, description = ?, note_range = ?, musical_concept = ? '
+                       'WHERE id = ?',
+                       (title, description, note_range, musical_concept, exercise_id))
+
+    db.commit()
+    return True
+
+def delete_exercise(exercise_id) -> bool:
+    db = get_db()
+
+    # Pre-validation Check: Exercise exists
+    if get_exercise_by_id(exercise_id) is None:
+        logger.debug(f"Exercise with id: '{exercise_id}' does not exist")
+        return False
+
+    # Delete the exercise
+    db.execute('DELETE FROM exercises WHERE id = ?', (exercise_id,))
+
+    db.commit()
+    return True
