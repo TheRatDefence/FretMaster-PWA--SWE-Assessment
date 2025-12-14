@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from config import DATABASE_PATH, SECRET_KEY
 import logging
 
-from database.db_operations import authenticate_user, create_user, get_all_exercises,  \
-    get_exercise_with_avg_difficulty, create_exercise, update_exercise, delete_exercise
+from database.db_operations import authenticate_user, create_user, get_all_exercises, get_exercise_with_avg_difficulty, \
+    create_exercise, update_exercise, delete_exercise, get_user_practice_sessions, create_practice_session, \
+    update_practice_session, delete_practice_session, get_session_by_id
 
 # Flask app initialisation
 app = Flask(__name__)
@@ -124,18 +125,30 @@ def logout():
 
 #-------------------Helper Functions-------------------#
 
-def check_admin_access() -> None | Response:
+# Used by 'LOGIN ONLY' routes
+def check_login_access() -> None | Response:
     url = request.path
     if 'user_id' not in session:
         logger.debug(f"Unauthenticated request from IP '{request.remote_addr}' to url: '{url}'")
         flash(f"Unauthenticated request to '{url}'", 'error')
         return redirect(url_for('login'))
+    else:
+        return None
+
+# Used by 'ADMIN ONLY' routes
+def check_admin_access() -> None | Response:
+    url = request.path
+    logged_in = check_login_access()
+
+    if logged_in:
+        return logged_in
     if session.get('is_admin') != 1:
         logger.debug(f"Unauthorised request from: '{session.get('user_id')}' to url: '{url}'")
         flash(f"Unauthorised request to '{url}'", 'error')
         return redirect(url_for('browse_exercises'))
     else:
         return None
+
 
 #-------------------Functionality Routes-------------------#
 
@@ -232,5 +245,97 @@ def delete_exercise_route(exercise_id: int):
     return redirect(url_for('browse_exercises'))
 
 
+#-------------------Practice Session Routes-------------------#
+
+# Browse sessions - LOGGED IN ONLY
+@app.route('/sessions')
+def sessions():
+    result = check_login_access()
+    if result:
+        return result
+
+    user_id = session['user_id']
+    sessions = get_user_practice_sessions(user_id)
+    return render_template('sessions/browse.html', sessions=sessions)
+
+# Create session - LOGGED IN ONLY
+@app.route('/sessions/create', methods=['GET', 'POST'])
+def create_session_route():
+    result = check_login_access()
+    if result:
+        return result
+
+    if request.method == 'POST':
+        exercise_id = request.form['exercise_id']
+        difficulty_rating = request.form['difficulty_rating']
+        session_notes = request.form['session_notes']
+        practice_date = request.form['practice_date']
+        user_id = session['user_id']
+
+        if not create_practice_session(user_id, exercise_id, difficulty_rating, session_notes, practice_date):
+            flash('Exercise does not exist', 'error')
+            return render_template('sessions/create.html')
+        return redirect(url_for('sessions'))
+
+    else:
+        exercises = get_all_exercises()
+        return render_template('sessions/create.html', exercises=exercises)
+
+# Edit session - LOGGED IN ONLY
+@app.route('/sessions/<int:session_id>/edit', methods=['GET', 'POST'])
+def edit_session_route(session_id: int):
+    result = check_login_access()
+    if result:
+        return result
+
+    practice_session = get_session_by_id(session_id)
+
+    if not practice_session:
+        flash('Practice session does not exist', 'error')
+        return redirect(url_for('sessions'))
+
+    if session['user_id'] != practice_session['user_id']:
+        flash('Unauthorised edit attempt', 'error')
+        return redirect(url_for('sessions'))
+
+    if request.method == 'POST':
+        difficulty_rating = request.form['difficulty_rating']
+        session_notes = request.form['session_notes']
+        practice_date = request.form['practice_date']
+
+        if not update_practice_session(session_id, difficulty_rating, session_notes, practice_date):
+            flash('Practice session does not exist','error')
+            return render_template('sessions/edit.html', practice_session=practice_session)
+        return redirect(url_for('sessions'))
+    else:
+        return render_template('sessions/edit.html', practice_session=practice_session)
+
+
+# Delete session - LOGGED IN ONLY
+@app.route('/sessions/<int:session_id>/delete', methods=['POST'])
+def delete_session_route(session_id: int):
+    result = check_login_access()
+    if result:
+        return result
+
+    practice_session = get_session_by_id(session_id)
+    if not practice_session:
+        flash('Practice session does not exist', 'error')
+        return redirect(url_for('sessions'))
+    if session['user_id'] != practice_session['user_id']:
+        flash('Unauthorised edit attempt', 'error')
+        return redirect(url_for('sessions'))
+
+    if not delete_practice_session(session_id):
+        flash('Practice session does not exist', 'error')
+        return redirect(url_for('sessions'))
+    else:
+        flash('Practice session deleted', 'success')
+        return redirect(url_for('sessions'))
+
+
 if __name__ == '__main__':
     app.run(port=5001)
+
+
+

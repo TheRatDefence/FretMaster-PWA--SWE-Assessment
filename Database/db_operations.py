@@ -14,7 +14,7 @@ def get_db() -> sqlite3.Connection:
     db.row_factory = sqlite3.Row
     return db
 
-
+# Should come back to refactor pre-validation checks in practice sessions and admin crud at some point
 
 def authenticate_user(username, password) -> sqlite3.Row | None:
     """
@@ -92,6 +92,7 @@ def get_exercise_by_id(exercise_id: str) -> sqlite3.Row | None:
                       'WHERE id = ?', (exercise_id,)).fetchone()
 
 
+
 def get_exercise_with_avg_difficulty(exercise_id) -> sqlite3.Row | None:
     """
     Get a single exercise with its average difficulty rating
@@ -111,6 +112,7 @@ def get_exercise_with_avg_difficulty(exercise_id) -> sqlite3.Row | None:
 
     return exercise
 
+#-------------------Admin CRUD Functions-------------------#
 
 def create_exercise(title, description, note_range, musical_concept, svg_diagram_path, created_by) -> bool:
     db = get_db()
@@ -161,7 +163,7 @@ def update_exercise(exercise_id, title, description, note_range, musical_concept
 def delete_exercise(exercise_id) -> bool:
     db = get_db()
 
-    # Pre-validation Check: Exercise exists
+    # Pre-validation Check: Exercise exists?
     if get_exercise_by_id(exercise_id) is None:
         logger.debug(f"Exercise with id: '{exercise_id}' does not exist")
         return False
@@ -169,5 +171,76 @@ def delete_exercise(exercise_id) -> bool:
     # Delete the exercise
     db.execute('DELETE FROM exercises WHERE id = ?', (exercise_id,))
 
+    db.commit()
+    return True
+
+
+#-------------------Practice Session Functions-------------------#
+
+def get_session_by_id(session_id) -> sqlite3.Row | None:
+    db = get_db()
+    return db.execute('SELECT * FROM practice_sessions '
+                      'WHERE id = ?', (session_id,)).fetchone()
+
+
+def get_user_practice_sessions(user_id) -> list:
+    db = get_db()
+
+    sessions = db.execute('SELECT * FROM practice_sessions '
+                          'WHERE user_id = ? '
+                          'ORDER BY practice_date DESC', (user_id,)).fetchall()
+    if not sessions:
+        logger.debug(f"No practice sessions for user: {user_id} found")
+    return sessions
+
+def create_practice_session(user_id, exercise_id, difficulty_rating, session_notes, practice_date) -> bool:
+    db = get_db()
+    cursor = db.cursor()
+
+    # Pre-validation Check: exercise_id exists?
+    if get_exercise_by_id(exercise_id) is None:
+        logger.debug(f"Exercise with id: '{exercise_id}' does not exist")
+        return False
+    # Pre-validation Check 2: Is difficulty_rating between 1-5?
+    if not (1 <= difficulty_rating <= 5):
+        logger.debug(f"Difficulty rating of {difficulty_rating} is out of bounds (1 - 5)")
+        return False
+
+    cursor.execute('INSERT INTO practice_sessions (user_id, exercise_id, difficulty_rating, session_notes, practice_date)'
+               'VALUES (?, ?, ?, ?, ?)', (user_id, exercise_id, difficulty_rating, session_notes, practice_date,))
+    db.commit()
+    return True
+
+
+def update_practice_session(session_id, difficulty_rating, session_notes, practice_date) -> bool:
+    db = get_db()
+    cursor = db.cursor()
+
+    # Pre-validation Check: Does session_id exist?
+    if cursor.execute('SELECT * FROM practice_sessions WHERE id = ?', (session_id,)).fetchone() is None:
+        logger.debug(f"Practice session with id: '{session_id}' does not exist")
+        return False
+    # Pre-validation Check 2: Is difficulty_rating between 1-5?
+    if not (1 <= difficulty_rating <= 5):
+        logger.debug(f"Difficulty rating of {difficulty_rating} is out of bounds (1 - 5)")
+        return False
+
+    cursor.execute('UPDATE practice_sessions '
+               'SET difficulty_rating = ?, session_notes = ?, practice_date = ?'
+               'WHERE id = ?', (difficulty_rating, session_notes, practice_date, session_id))
+    db.commit()
+    return True
+
+
+def delete_practice_session(session_id) -> bool:
+    db = get_db()
+    cursor = db.cursor()
+
+    # Pre-validation Check: Does session_id exist?
+    if cursor.execute('SELECT * FROM practice_sessions WHERE id = ?', (session_id,)).fetchone() is None:
+        logger.debug(f"Practice session with id: '{session_id}' does not exist")
+        return False
+
+    cursor.execute('DELETE FROM practice_sessions WHERE id = ?', (session_id,))
     db.commit()
     return True
