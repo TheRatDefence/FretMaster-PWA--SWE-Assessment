@@ -3,6 +3,10 @@
 <head>
     <title>{% block title %}FretMaster{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#bb86fc">
 </head>
 <body class="dark">
     <nav>
@@ -42,5 +46,18 @@
         <p>2025 FretMaster - Guitar Learning PWA</p>
         <p>HSC Software Engineering Assessment - Year 12</p>
     </footer>
+
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/js/service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registered successfully:', registration);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    </script>
 </body>
 </html>
