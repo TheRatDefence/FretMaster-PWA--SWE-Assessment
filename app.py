@@ -255,8 +255,8 @@ def sessions():
         return result
 
     user_id = session['user_id']
-    sessions = get_user_practice_sessions(user_id)
-    return render_template('sessions/browse.html', sessions=sessions)
+    user_sessions = get_user_practice_sessions(user_id)
+    return render_template('sessions/browse.html', sessions=user_sessions)
 
 # Create session - LOGGED IN ONLY
 @app.route('/sessions/create', methods=['GET', 'POST'])
@@ -265,20 +265,21 @@ def create_session_route():
     if result:
         return result
 
+    exercises = get_all_exercises()
+
     if request.method == 'POST':
-        exercise_id = request.form['exercise_id']
-        difficulty_rating = request.form['difficulty_rating']
+        exercise_id = int(request.form['exercise_id'])
+        difficulty_rating = int(request.form['difficulty_rating'])
         session_notes = request.form['session_notes']
         practice_date = request.form['practice_date']
         user_id = session['user_id']
 
         if not create_practice_session(user_id, exercise_id, difficulty_rating, session_notes, practice_date):
             flash('Exercise does not exist', 'error')
-            return render_template('sessions/create.html')
+            return render_template('sessions/create.html', exercises=exercises)
         return redirect(url_for('sessions'))
 
     else:
-        exercises = get_all_exercises()
         return render_template('sessions/create.html', exercises=exercises)
 
 # Edit session - LOGGED IN ONLY
@@ -299,7 +300,7 @@ def edit_session_route(session_id: int):
         return redirect(url_for('sessions'))
 
     if request.method == 'POST':
-        difficulty_rating = request.form['difficulty_rating']
+        difficulty_rating = int(request.form['difficulty_rating'])
         session_notes = request.form['session_notes']
         practice_date = request.form['practice_date']
 
@@ -326,12 +327,9 @@ def delete_session_route(session_id: int):
         flash('Unauthorised edit attempt', 'error')
         return redirect(url_for('sessions'))
 
-    if not delete_practice_session(session_id):
-        flash('Practice session does not exist', 'error')
-        return redirect(url_for('sessions'))
-    else:
-        flash('Practice session deleted', 'success')
-        return redirect(url_for('sessions'))
+    delete_practice_session(session_id)
+    flash('Practice session deleted', 'success')
+    return redirect(url_for('sessions'))
 
 
 if __name__ == '__main__':

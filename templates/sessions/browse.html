@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>My Practice Sessions</h2>
+
+    <a href="{{ url_for('create_session_route') }}">
+        <button>Create New Session</button>
+    </a>
+
+    <table>
+        <tr>
+            <th>Practice Date</th>
+            <th>Difficulty Rating</th>
+            <th>Session Notes</th>
+            <th>Actions</th>
+        </tr>
+        {% for session in sessions %}
+            <tr>
+                <td>{{ session.practice_date }}</td>
+                <td>{{ session.difficulty_rating }}</td>
+                <td>{{ session.session_notes }}</td>
+                <td>
+                    <a href="{{ url_for('edit_session_route', session_id=session.id) }}"><button>Edit</button></a>
+                    <form method="POST" action="{{ url_for('delete_session_route', session_id=session.id) }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}
