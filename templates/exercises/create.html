@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Create Exercise - FretMaster
+{% endblock %}
+
+{% block content %}
+    <h2>Create Exercise</h2>
+
+    <form method="POST" action="{{ url_for('create_exercise_route') }}">
+        <!-- I'll add placeholder text later --->
+        <label for="title">Title:</label>
+        <input type="text" name="title" required>
+
+        <label for="description">Description:</label>
+        <input type="text" name="description">
+
+        <label for="note_range">Note Range:</label>
+        <!-- Might change this to be a dropdown between 2 notes later -->
+        <input type="text" name="note_range">
+
+        <label for="musical_concept">musical_concept:</label>
+        <input type="text" name="musical_concept">
+
+        <label for="diagram_path">diagram_path:</label>
+        <input type="text" name="diagram_path">
+
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}

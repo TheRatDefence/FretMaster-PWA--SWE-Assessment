@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Edit Exercise - FretMaster
+{% endblock %}
+
+{% block content %}
+    <h2>Edit Exercise</h2>
+
+    <form method="POST" action="{{ url_for('edit_exercise_route', exercise_id=exercise.id) }}">
+        <label for="title">Title:</label>
+        <input type="text" name="title" value="{{ exercise.title }}" required>
+
+        <label for="description">Description:</label>
+        <input type="text" name="description" value="{{ exercise.description }}">
+
+        <label for="note_range">Note Range:</label>
+        <input type="text" name="note_range" value="{{ exercise.note_range }}">
+
+        <label for="musical_concept">musical_concept:</label>
+        <input type="text" name="musical_concept" value="{{ exercise.musical_concept }}">
+
+        <label for="svg_diagram_path">diagram_path:</label>
+        <input type="text" name="svg_diagram_path" value="{{ exercise.svg_diagram_path }}">
+
+        <button type="submit">Update</button>
+    </form>
+{% endblock %}

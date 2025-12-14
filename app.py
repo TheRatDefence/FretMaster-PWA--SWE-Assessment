@@ -60,6 +60,7 @@ def login():
         if user:
             logger.info(f"Successful login: user='{username}' (id='{user['id']}' ip='{ip}')")
             session['user_id'] = user['id']
+            session['is_admin'] = user['is_admin']
             flash('Successful login', 'success')
             return redirect(url_for('home'))
         else:
@@ -180,10 +181,10 @@ def create_exercise_route():
         description = request.form['description']
         note_range = request.form['note_range']
         musical_concept = request.form['musical_concept']
-        diagram_path = request.form['diagram_path']
+        svg_diagram_path = request.form['svg_diagram_path']
         user = session.get('user_id')
 
-        if not create_exercise(title, description, note_range, musical_concept, diagram_path, user):
+        if not create_exercise(title, description, note_range, musical_concept, svg_diagram_path, user):
             flash('An exercise with that name already exists, please choose a new one', 'error')
             return render_template('exercises/create.html')
         return redirect(url_for('browse_exercises'))
