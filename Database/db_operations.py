@@ -72,14 +72,33 @@ def create_user(username, password, email) -> bool:
 
 #-------------------Exercise Functions-------------------#
 
-def get_all_exercises() -> list:
+def get_all_exercises(search_query=None, musical_concept=None) -> list:
     """
-    Get all exercises from the database
-    :return: List of all exercise rows
+    Get all exercises from the database with optional filtering
+    :param search_query: Optional text to search in title and description
+    :param musical_concept: Optional musical concept to filter by
+    :return: List of all exercise rows matching the filters
     """
     db = get_db()
-    return db.execute('SELECT * FROM exercises '
-                      'ORDER BY created_at DESC').fetchall()
+    cursor = db.cursor()
+
+    query = 'SELECT * FROM exercises '
+    sql_parameters = []
+
+    if search_query:
+        query += 'WHERE (title LIKE ? OR description LIKE ?) '
+        sql_parameters.append(f'%{search_query}%')
+        sql_parameters.append(f'%{search_query}%')
+
+        if musical_concept:
+            query += 'AND musical_concept = ? '
+            sql_parameters.append(musical_concept)
+    elif musical_concept:
+        query += 'WHERE musical_concept = ? '
+        sql_parameters.append(musical_concept)
+
+    query += 'ORDER BY created_at DESC'
+    return cursor.execute(query, tuple(sql_parameters)).fetchall()
 
 def get_exercise_by_id(exercise_id: str) -> sqlite3.Row | None:
     """

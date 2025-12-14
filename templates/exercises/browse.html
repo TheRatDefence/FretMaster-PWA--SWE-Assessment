@@ -3,6 +3,24 @@
 {% block content %}
     <h2>Browse Exercises</h2>
 
+    <form method="GET" action="{{ url_for('browse_exercises') }}">
+        <label for="search">Search:</label>
+        <input name="search" type="text" value="{{ search_query }}">
+
+        <label for="musical_concept">Musical Concept:</label>
+        <select name="musical_concept">
+            <option value="">All Concepts</option>
+            {% for concept in concepts %}
+                <option value="{{ concept }}"
+                        {% if concept == musical_concept %} selected {% endif %}
+                >{{ concept }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Search</button>
+        <a href="{{ url_for('browse_exercises') }}"><button type="reset">Reset</button></a>
+
+    </form>
+
     {% if session.get('is_admin') == 1 %}
         <a href="{{ url_for('create_exercise_route') }}">
             <button>Create New Exercise</button>

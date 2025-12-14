@@ -156,12 +156,17 @@ def check_admin_access() -> None | Response:
 @app.route('/exercises')
 def browse_exercises():
     """
-    Displays a browser of exercises in the database
+    Displays a browser of exercises in the database with optional search/filter
 
     :return: Rendered browse exercises template with all exercises
     """
-    exercises = get_all_exercises()
-    return render_template('exercises/browse.html', exercises=exercises)
+    search = request.args.get('search')
+    musical_concept = request.args.get('musical_concept')
+
+    exercises = get_all_exercises(search, musical_concept)
+    unique_concepts = list(set(exercise['musical_concept'] for exercise in get_all_exercises()))
+    return render_template('exercises/browse.html', exercises=exercises,
+                           search_query=search, concepts=unique_concepts, musical_concept=musical_concept)
 
 # Specific exercise page - PUBLIC
 @app.route('/exercises/<int:exercise_id>')
