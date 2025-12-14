@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from config import DATABASE_PATH, SECRET_KEY
 import logging
 
-from database.db_operations import authenticate_user, create_user, get_all_exercises, get_exercise_with_avg_difficulty
-
+from database.db_operations import authenticate_user, create_user, get_all_exercises,  \
+    get_exercise_with_avg_difficulty, create_exercise, update_exercise, delete_exercise
 
 # Flask app initialisation
 app = Flask(__name__)
@@ -121,6 +121,21 @@ def logout():
     # Redirect to homepage
     return redirect(url_for('home'))
 
+#-------------------Helper Functions-------------------#
+
+def check_admin_access() -> None | Response:
+    url = request.path
+    if 'user_id' not in session:
+        logger.debug(f"Unauthenticated request from IP '{request.remote_addr}' to url: '{url}'")
+        flash(f"Unauthenticated request to '{url}'", 'error')
+        return redirect(url_for('login'))
+    if session.get('is_admin') != 1:
+        logger.debug(f"Unauthorised request from: '{session.get('user_id')}' to url: '{url}'")
+        flash(f"Unauthorised request to '{url}'", 'error')
+        return redirect(url_for('browse_exercises'))
+    else:
+        return None
+
 #-------------------Functionality Routes-------------------#
 
 # Exercises page - PUBLIC
@@ -152,6 +167,69 @@ def exercise_detail(exercise_id: int):
         return redirect(url_for('browse_exercises'))
 
     return render_template('exercises/detail.html', exercise=exercise)
+
+# Create new exercise page - ADMIN ONLY
+@app.route('/exercises/create', methods=['GET','POST'])
+def create_exercise_route():
+    result = check_admin_access()
+    if result:
+        return result
+
+    if request.method == "POST":
+        title = request.form['title']
+        description = request.form['description']
+        note_range = request.form['note_range']
+        musical_concept = request.form['musical_concept']
+        diagram_path = request.form['diagram_path']
+        user = session.get('user_id')
+
+        if not create_exercise(title, description, note_range, musical_concept, diagram_path, user):
+            flash('An exercise with that name already exists, please choose a new one', 'error')
+            return render_template('exercises/create.html')
+        return redirect(url_for('browse_exercises'))
+    else:
+        return render_template('exercises/create.html')
+
+# Edit an exercise - ADMIN ONLY
+@app.route('/exercises/<int:exercise_id>/edit', methods=['GET', 'POST'])
+def edit_exercise_route(exercise_id: int):
+    result = check_admin_access()
+    if result:
+        return result
+
+    # Checking if exercise exists
+    exercise = get_exercise_with_avg_difficulty(exercise_id)
+    if exercise is None:
+        flash('Exercise not found', 'error')
+        return redirect(url_for('browse_exercises'))
+
+    if request.method == "POST":
+        title = request.form['title']
+        description = request.form['description']
+        note_range = request.form['note_range']
+        musical_concept = request.form['musical_concept']
+        diagram_path = request.form['diagram_path']
+
+        if not update_exercise(exercise_id, title, description, note_range, musical_concept, diagram_path):
+            flash('An exercise with that name already exists, please choose a new one', 'error')
+            return render_template('exercises/edit.html', exercise=exercise)
+        return redirect(url_for('exercise_detail', exercise_id=exercise_id))
+    else:
+        return render_template('exercises/edit.html', exercise=exercise)
+
+# Delete an exercise - ADMIN ONLY
+@app.route('/exercises/<int:exercise_id>/delete', methods=['POST'])
+def delete_exercise_route(exercise_id: int):
+    result = check_admin_access()
+    if result:
+        return result
+
+    if not delete_exercise(exercise_id):
+        flash('Exercise not found', 'error')
+    else:
+        flash('Exercise deleted', 'success')
+    return redirect(url_for('browse_exercises'))
+
 
 if __name__ == '__main__':
     app.run(port=5001)
