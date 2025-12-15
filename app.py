@@ -1,6 +1,9 @@
 import sys
 from pathlib import Path
 import os
+from tokenize import endpats
+
+from utils.generate_assets import create_diagram
 
 # Add the project root to Python path (fixes Windows import issues)
 sys.path.insert(0, str(Path(__file__).parent))
@@ -211,10 +214,18 @@ def create_exercise_route():
     if request.method == "POST":
         title = request.form['title']
         description = request.form['description']
-        note_range = request.form['note_range']
+
+        root_note_name = request.form['root_note_name']
+        root_note_octave = request.form['root_note_octave']
+        end_note_octave = request.form['end_note_octave']
+        note_range = root_note_name + root_note_octave + "-" + root_note_name + end_note_octave
+
         musical_concept = request.form['musical_concept']
-        svg_diagram_path = request.form['svg_diagram_path']
         user = session.get('user_id')
+
+        diagram = create_diagram(target_note=root_note_name + root_note_octave)  # Doesn't use end_note_octave yet
+        # URL-encode the filename to handle special characters like # in note names
+        svg_diagram_path = f"/static/diagrams/{diagram.name.replace('#', '%23')}"
 
         if not create_exercise(title, description, note_range, musical_concept, svg_diagram_path, user):
             flash('An exercise with that name already exists, please choose a new one', 'error')
@@ -239,16 +250,31 @@ def edit_exercise_route(exercise_id: int):
     if request.method == "POST":
         title = request.form['title']
         description = request.form['description']
-        note_range = request.form['note_range']
-        musical_concept = request.form['musical_concept']
-        diagram_path = request.form['diagram_path']
 
-        if not update_exercise(exercise_id, title, description, note_range, musical_concept, diagram_path):
+        root_note_name = request.form['root_note_name']
+        root_note_octave = request.form['root_note_octave']
+        end_note_octave = request.form['end_note_octave']
+        note_range = root_note_name + root_note_octave + "-" + root_note_name + end_note_octave
+
+        musical_concept = request.form['musical_concept']
+
+        diagram = create_diagram(target_note=root_note_name + root_note_octave)  # Doesn't use end_note_octave yet
+        svg_diagram_path = f"/static/diagrams/{diagram.name.replace('#', '%23')}"
+
+        if not update_exercise(exercise_id, title, description, note_range, musical_concept, svg_diagram_path):
             flash('An exercise with that name already exists, please choose a new one', 'error')
             return render_template('exercises/edit.html', exercise=exercise)
         return redirect(url_for('exercise_detail', exercise_id=exercise_id))
     else:
-        return render_template('exercises/edit.html', exercise=exercise)
+        parts = exercise['note_range'].split("-")
+        root_note_name = parts[0][:-1]
+        root_note_octave = parts[0][-1]
+        end_note_octave = parts[1][-1]
+
+        return render_template('exercises/edit.html', exercise=exercise,
+                              root_note_name=root_note_name,
+                              root_note_octave=root_note_octave,
+                              end_note_octave=end_note_octave)
 
 # Delete an exercise - ADMIN ONLY
 @app.route('/exercises/<int:exercise_id>/delete', methods=['POST'])
@@ -299,7 +325,8 @@ def create_session_route():
         return redirect(url_for('sessions'))
 
     else:
-        return render_template('sessions/create.html', exercises=exercises)
+        preselected_exercise = request.args.get('exercise_id')
+        return render_template('sessions/create.html', exercises=exercises, preselected_exercise=preselected_exercise)
 
 # Edit session - LOGGED IN ONLY
 @app.route('/sessions/<int:session_id>/edit', methods=['GET', 'POST'])

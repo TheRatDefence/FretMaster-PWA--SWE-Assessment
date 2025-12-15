@@ -14,14 +14,40 @@
         <label for="description">Description:</label>
         <input type="text" name="description" value="{{ exercise.description }}">
 
-        <label for="note_range">Note Range:</label>
-        <input type="text" name="note_range" value="{{ exercise.note_range }}">
+        <label for="root_note_name">Root Note:</label>
+        <select name="root_note_name" required>
+            <option value="C" {% if root_note_name == 'C' %}selected{% endif %}>C</option>
+            <option value="C#" {% if root_note_name == 'C#' %}selected{% endif %}>C#</option>
+            <option value="D" {% if root_note_name == 'D' %}selected{% endif %}>D</option>
+            <option value="D#" {% if root_note_name == 'D#' %}selected{% endif %}>D#</option>
+            <option value="E" {% if root_note_name == 'E' %}selected{% endif %}>E</option>
+            <option value="F" {% if root_note_name == 'F' %}selected{% endif %}>F</option>
+            <option value="F#" {% if root_note_name == 'F#' %}selected{% endif %}>F#</option>
+            <option value="G" {% if root_note_name == 'G' %}selected{% endif %}>G</option>
+            <option value="G#" {% if root_note_name == 'G#' %}selected{% endif %}>G#</option>
+            <option value="A" {% if root_note_name == 'A' %}selected{% endif %}>A</option>
+            <option value="A#" {% if root_note_name == 'A#' %}selected{% endif %}>A#</option>
+            <option value="B" {% if root_note_name == 'B' %}selected{% endif %}>B</option>
+        </select>
 
-        <label for="musical_concept">musical_concept:</label>
+        <label for="root_note_octave">Root Note Octave:</label>
+        <select name="root_note_octave" required>
+            <option value="2" {% if root_note_octave == '2' %}selected{% endif %}>Octave 2</option>
+            <option value="3" {% if root_note_octave == '3' %}selected{% endif %}>Octave 3</option>
+            <option value="4" {% if root_note_octave == '4' %}selected{% endif %}>Octave 4</option>
+            <option value="5" {% if root_note_octave == '5' %}selected{% endif %}>Octave 5</option>
+        </select>
+
+        <label for="end_note_octave">End Note Octave:</label>
+        <select name="end_note_octave" required>
+            <option value="2" {% if end_note_octave == '2' %}selected{% endif %}>Octave 2</option>
+            <option value="3" {% if end_note_octave == '3' %}selected{% endif %}>Octave 3</option>
+            <option value="4" {% if end_note_octave == '4' %}selected{% endif %}>Octave 4</option>
+            <option value="5" {% if end_note_octave == '5' %}selected{% endif %}>Octave 5</option>
+        </select>
+
+        <label for="musical_concept">Musical Concept:</label>
         <input type="text" name="musical_concept" value="{{ exercise.musical_concept }}">
-
-        <label for="svg_diagram_path">diagram_path:</label>
-        <input type="text" name="svg_diagram_path" value="{{ exercise.svg_diagram_path }}">
 
         <button type="submit">Update</button>
     </form>

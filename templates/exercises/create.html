@@ -8,22 +8,44 @@
     <h2>Create Exercise</h2>
 
     <form method="POST" action="{{ url_for('create_exercise_route') }}">
-        <!-- I'll add placeholder text later --->
         <label for="title">Title:</label>
         <input type="text" name="title" required>
 
         <label for="description">Description:</label>
         <input type="text" name="description">
 
-        <label for="note_range">Note Range:</label>
-        <!-- Might change this to be a dropdown between 2 notes later -->
-        <input type="text" name="note_range">
+        <label for="root_note_name">Root Note:</label>
+          <select name="root_note_name" required>
+              <option value="C">C</option>
+              <option value="C#">C#</option>
+              <option value="D">D</option>
+              <option value="D#">D#</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="F#">F#</option>
+              <option value="G">G</option>
+              <option value="G#">G#</option>
+              <option value="A">A</option>
+              <option value="A#">A#</option>
+              <option value="B">B</option>
+          </select>
+        <label for="root_note_octave">Root Note Octave:</label>
+          <select name="root_note_octave" required>
+              <option value="2">Octave 2</option>
+              <option value="3">Octave 3</option>
+              <option value="4">Octave 4</option>
+              <option value="5">Octave 5</option>
+          </select>
+        <label for="end_note_octave">End Note Octave:</label>
+        <select name="end_note_octave" required>
+            <option value="2">Octave 2</option>
+            <option value="3">Octave 3</option>
+            <option value="4">Octave 4</option>
+            <option value="5">Octave 5</option>
+        </select>
 
         <label for="musical_concept">musical_concept:</label>
         <input type="text" name="musical_concept">
-
-        <label for="diagram_path">diagram_path:</label>
-        <input type="text" name="diagram_path">
 
         <button type="submit">Create</button>
     </form>

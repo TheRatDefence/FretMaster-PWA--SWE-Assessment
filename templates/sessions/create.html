@@ -11,7 +11,9 @@
         <label for="exercise_id">Exercise:</label>
         <select name="exercise_id" id="exercises" required>
             {% for exercise in exercises %}
-                <option value="{{ exercise.id }}">{{ exercise.title }}</option>
+                <option value="{{ exercise.id }}" {% if preselected_exercise and exercise.id == preselected_exercise|int %}selected{% endif %}>
+                    {{ exercise.title }}
+                </option>
             {% endfor %}
         </select>
 
