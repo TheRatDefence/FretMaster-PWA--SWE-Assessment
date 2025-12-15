@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+# Add the project root to Python path (fixes Windows import issues)
+sys.path.insert(0, str(Path(__file__).parent))
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from config import DATABASE_PATH, SECRET_KEY
 import logging
