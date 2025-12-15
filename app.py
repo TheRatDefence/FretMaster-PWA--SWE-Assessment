@@ -12,6 +12,13 @@ from database.db_operations import authenticate_user, create_user, get_all_exerc
     create_exercise, update_exercise, delete_exercise, get_user_practice_sessions, create_practice_session, \
     update_practice_session, delete_practice_session, get_session_by_id
 
+# Auto-initialize database if it doesn't exist
+if not os.path.exists(DATABASE_PATH):
+    print("[!] Database not found. Initializing database...")
+    from database.init_db import init_database
+    init_database()
+    print("[X] Database initialized successfully!")
+
 # Flask app initialisation
 app = Flask(__name__)
 
