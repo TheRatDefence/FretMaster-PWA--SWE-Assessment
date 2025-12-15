@@ -8,7 +8,7 @@ from utils.generate_assets import create_diagram
 # Add the project root to Python path (fixes Windows import issues)
 sys.path.insert(0, str(Path(__file__).parent))
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, make_response, send_from_directory
 from config import DATABASE_PATH, SECRET_KEY
 import logging
 
@@ -376,6 +376,36 @@ def delete_session_route(session_id: int):
     delete_practice_session(session_id)
     flash('Practice session deleted', 'success')
     return redirect(url_for('sessions'))
+
+
+#-------------------PWA Routes -------------------#
+
+# Offline page
+@app.route('/offline')
+def offline():
+    response = make_response(render_template('offline.html'))
+    return response
+
+# Service Worker
+@app.route('/service-worker.js')
+def sw():
+    response = make_response(
+        send_from_directory(os.path.join(app.root_path, 'static/js'),
+                            'service-worker.js')
+    )
+    response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+# Manifest
+@app.route('/manifest.json')
+def manifest():
+    response = make_response(
+        send_from_directory(os.path.join(app.root_path, 'static'),
+                            'manifest.json')
+    )
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 
 if __name__ == '__main__':

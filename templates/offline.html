@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Offline - FretMaster
+{% endblock %}
+
+{% block content %}
+    <h2>You're Offline</h2>
+    <p>It looks like you've lost your internet connection.</p>
+    <p>This page hasn't been cached yet for offline viewing.</p>
+
+    <h3>What you can do:</h3>
+    <ul>
+        <li>Check your internet connection and try again</li>
+        <li>Visit the <a href="{{ url_for('browse_exercises') }}">Browse Exercises</a> page (if it's cached)</li>
+        <li>Go to the <a href="{{ url_for('home') }}">Home Page</a></li>
+    </ul>
+{% endblock %}
