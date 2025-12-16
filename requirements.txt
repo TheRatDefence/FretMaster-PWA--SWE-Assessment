@@ -1,15 +1,3 @@
-# FretMaster PWA - Python Dependencies
-# Install with: pip install -r requirements.txt
-
-# Web Framework
-Flask==3.0.0
+Flask==3.1.2
+fretboardgtr==0.2.7
 Werkzeug==3.1.4
-
-# Database
-# SQLite3 is built into Python, no separate package needed
-
-# Password Security
-# Werkzeug provides password hashing utilities
-
-# Fretboard Visualization (if using external library)
-# Add fretboard library here when integrated
