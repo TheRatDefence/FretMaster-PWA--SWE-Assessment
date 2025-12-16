@@ -8,6 +8,9 @@
     <meta name="theme-color" content="#bb86fc">
 </head>
 <body class="dark">
+    <!-- Skip link for keyboard accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <nav>
         <h1>FretMaster</h1>
         <ul>
@@ -36,7 +39,7 @@
         {% endwith %}
 
 
-        <main>
+        <main id="main-content">
             {% block content %}
             {% endblock %}
         </main>

@@ -9,7 +9,7 @@
 
     <form method="POST" action="{{ url_for('create_session_route') }}">
         <label for="exercise_id">Exercise:</label>
-        <select name="exercise_id" id="exercises" required>
+        <select id="exercise_id" name="exercise_id" required>
             {% for exercise in exercises %}
                 <option value="{{ exercise.id }}" {% if preselected_exercise and exercise.id == preselected_exercise|int %}selected{% endif %}>
                     {{ exercise.title }}
@@ -18,13 +18,13 @@
         </select>
 
         <label for="difficulty_rating">Difficulty Rating:</label>
-        <input type="number" min="1" max="5"  name="difficulty_rating" required>
+        <input type="number" id="difficulty_rating" min="1" max="5" name="difficulty_rating" required>
 
         <label for="session_notes">Session Notes:</label>
-        <textarea name="session_notes" rows="4"></textarea>
+        <textarea id="session_notes" name="session_notes" rows="4"></textarea>
 
         <label for="practice_date">Practice Date:</label>
-        <input type="date" name="practice_date" required>
+        <input type="date" id="practice_date" name="practice_date" required>
 
         <button type="submit">Create</button>
     </form>

@@ -9,10 +9,10 @@
 
     <form method="POST" action="{{ url_for('create_exercise_route') }}">
         <label for="title">Title:</label>
-        <input type="text" name="title" required>
+        <input type="text" id="title" name="title" required>
 
         <label for="description">Description:</label>
-        <input type="text" name="description">
+        <input type="text" id="description" name="description">
 
         <label for="root_note_name">Root Note:</label>
           <select name="root_note_name" required>

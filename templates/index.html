@@ -6,5 +6,26 @@
 
 {% block content %}
     <h1>Welcome to FretMaster</h1>
-    <p>To be implemented...</p>
+    <p>Your comprehensive guitar learning companion for mastering fretboard positions and tracking practice progress.</p>
+
+    <h2>Get Started</h2>
+
+    {% if not session.get('user_id') %}
+        <p>Join FretMaster to start tracking your guitar practice journey:</p>
+        <a href="{{ url_for('register') }}"><button>Sign Up</button></a>
+        <a href="{{ url_for('login') }}"><button>Log In</button></a>
+    {% else %}
+        <p>Welcome back! Continue your practice:</p>
+        <a href="{{ url_for('browse_exercises') }}"><button>Browse Exercises</button></a>
+        <a href="{{ url_for('sessions') }}"><button>My Practice Sessions</button></a>
+    {% endif %}
+
+    <h2>Features</h2>
+    <ul>
+        <li><strong>Interactive Fretboard Diagrams:</strong> Auto-generated diagrams showing note positions</li>
+        <li><strong>Practice Tracking:</strong> Log sessions and rate difficulty</li>
+        <li><strong>Community Ratings:</strong> See average difficulty ratings from fellow guitarists</li>
+        <li><strong>Search & Filter:</strong> Find exercises by musical concept or search terms</li>
+        <li><strong>Offline Access:</strong> Works without internet connection after first visit</li>
+    </ul>
 {% endblock %}
